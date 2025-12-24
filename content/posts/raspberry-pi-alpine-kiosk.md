@@ -56,7 +56,7 @@ setup-alpine
 
 Ich konfiguriere dann die Installation wie folgt:
 
-```
+```text
 Keymap: de
 Variant: de
 System Name: kamin
