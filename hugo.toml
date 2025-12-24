@@ -1,0 +1,54 @@
+baseURL = 'https://tohdev.de/'
+languageCode = 'de-de'
+title = 'TohDev - Entwickler Blog'
+theme = 'PaperMod'
+
+[module]
+  [[module.imports]]
+    path = "github.com/martignoni/hugo-notice"
+
+[params]
+  description = "Entwickler-Artikel und Tutorials"
+  author = "TohDev"
+  ShowReadingTime = true
+  ShowShareButtons = true
+  ShowPostNavLinks = true
+  ShowBreadCrumbs = true
+  ShowCodeCopyButtons = true
+  ShowRssButtonInSectionTermList = true
+
+[params.assets]
+  disableFingerprinting = true
+
+[params.homeInfoParams]
+  Title = "Willkommen bei TohDev"
+  Content = "Entwickler-Blog mit Artikeln, Tutorials und Best Practices"
+
+[[params.socialIcons]]
+  name = "github"
+  url = "https://github.com/yourusername"
+
+[menu]
+  [[menu.main]]
+    identifier = "artikel"
+    name = "Artikel"
+    url = "/posts/"
+    weight = 10
+  
+  [[menu.main]]
+    identifier = "tags"
+    name = "Tags"
+    url = "/tags/"
+    weight = 20
+
+  [[menu.main]]
+    identifier = "about"
+    name = "Über"
+    url = "/about/"
+    weight = 30
+
+[markup]
+  [markup.highlight]
+    style = 'monokai'
+    lineNos = true
+    lineNumbersInTable = true

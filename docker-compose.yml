@@ -1,0 +1,27 @@
+services:
+  hugo-dev:
+    image: hugomods/hugo:latest
+    container_name: tohdev-hugo-dev
+    command: hugo server --buildDrafts --bind=0.0.0.0 --disableFastRender --poll 1s
+    volumes:
+      - .:/src
+    ports:
+      - "1313:1313"
+    environment:
+      - HUGO_ENV=development
+
+  hugo-build:
+    image: hugomods/hugo:latest
+    container_name: tohdev-hugo-build
+    command: hugo --minify
+    volumes:
+      - .:/src
+
+  tohdev-site:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: tohdev-site
+    ports:
+      - "8080:80"
+    restart: unless-stopped

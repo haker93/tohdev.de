@@ -1,0 +1,15 @@
+# Hugo
+public/
+resources/_gen/
+.hugo_build.lock
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# FTP credentials
+ftp-credentials.env
