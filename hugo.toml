@@ -16,6 +16,8 @@ theme = 'PaperMod'
   ShowBreadCrumbs = true
   ShowCodeCopyButtons = true
   ShowRssButtonInSectionTermList = true
+  # Disable analytics
+  disableGoogleAnalytics = true
 
 [params.assets]
   disableFingerprinting = true
