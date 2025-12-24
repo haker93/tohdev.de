@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  hugo-dev:
+    image: hugomods/hugo:exts-0.146.0
+    container_name: tohdev-hugo-dev
+    command: server --bind 0.0.0.0 --baseURL http://localhost:1313 --buildDrafts --buildFuture --disableFastRender
+    volumes:
+      - .:/src
+    ports:
+      - "1313:1313"
+    environment:
+      - HUGO_ENV=development
+    restart: unless-stopped

@@ -1,0 +1,28 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "docker-compose-down",
+      "type": "shell",
+      "command": "docker",
+      "args": ["compose", "down"],
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "docker-compose-logs",
+      "type": "shell",
+      "command": "docker",
+      "args": ["compose", "logs", "-f"],
+      "problemMatcher": [],
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Hugo: Start Dev Server",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "docker",
+      "runtimeArgs": [
+        "compose",
+        "up",
+        "-d"
+      ],
+      "cwd": "${workspaceFolder}",
+      "serverReadyAction": {
+        "pattern": "Web Server is available at (https?://[^\\s]+)",
+        "uriFormat": "%s",
+        "action": "openExternally"
+      },
+      "preLaunchTask": "docker-compose-down",
+      "postDebugTask": "docker-compose-logs"
+    }
+  ]
+}
