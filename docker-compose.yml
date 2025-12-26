@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   hugo-dev:
     image: hugomods/hugo:exts-0.146.0

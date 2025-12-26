@@ -1,0 +1,4 @@
+/* Increase content width from 720px to 948px */
+:root {
+    --main-width: 948px;
+}
