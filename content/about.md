@@ -10,9 +10,10 @@ Willkommen auf meinem Blog! Hier halte ich alles fest, was ich sonst vergessen w
 
 ## Themen
 
+- Technik
 - Softwareentwicklung
 - Automatisierung
-- 
+
 
 ## Kontakt
 
