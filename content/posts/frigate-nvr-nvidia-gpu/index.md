@@ -499,6 +499,10 @@ Du solltest nun das Frigate-Webinterface sehen und deine Kamerastreams mit Live-
 
 ![Frigate Oberfläche](frigate-ui.png)
 
+Mit der Zeit wird Frigate nun Aufnahmen von erkannten Objekten anfertigen und diese abspeichern. Das sieht beispielsweise so aus:
+
+![Frigate Detections](frigate-detections.png)
+
 ## Performance-Tipps
 
 1. **Detektoren skalieren:** Erhöhe die Anzahl der Detektoren (`onnx0`, `onnx1`, ...), wenn du viele Kameras hast
