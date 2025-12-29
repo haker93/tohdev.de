@@ -7,17 +7,19 @@ categories: ["Tutorial", "Smart Home"]
 author: "Tobias"
 description: "Anleitung zur Installation von Frigate NVR mit NVIDIA GPU-Beschleunigung für KI-basierte Objekterkennung in Überwachungskameras"
 cover:
-  image: ""
-  alt: "Frigate NVR Logo"
+  image: "cover.jpg"
+  alt: "Frigate Detections"
   caption: ""
-  relative: false
+  relative: true
 ---
 
 ## Was ist Frigate?
 
 Frigate ist ein Open-Source Network Video Recorder (NVR) mit KI-gestützter Objekterkennung. Anders als klassische Überwachungssysteme nutzt Frigate moderne Machine-Learning-Modelle wie YOLOv9, um Personen, Fahrzeuge und andere Objekte in Echtzeit zu erkennen. Mit einem KI-Beschleuniger wie einer handelsüblichen GPU läuft die Objekterkennung besonders performant.
 
-In diesem Artikel zeige ich, wie du Frigate auf einem Ubuntu-System mit NVIDIA-GPU einrichten kannst.
+![Frigate Object Tracking](object-tracking.webp)
+
+In diesem Artikel zeige ich, wie ich Frigate auf einem Ubuntu-System mit NVIDIA-GPU eingerichtet habe.
 
 ## Voraussetzungen
 
