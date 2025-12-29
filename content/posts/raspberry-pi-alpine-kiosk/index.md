@@ -7,7 +7,7 @@ categories: ["Embedded", "Tutorial", "Hardware"]
 author: "Tobias"
 description: "Einrichtung eines Raspberry Pi mit Alpine Linux als schnellen Kiosk für HMI-Anwendungen."
 cover:
-    image: "images/raspberry-pi-kiosk-dashboard.svg"
+    image: "raspberry-pi-kiosk-dashboard.svg"
     alt: "Raspberry Pi Kiosk mit Home Assistant Dashboard"
     caption: "Raspberry Pi als HMI-Kiosk mit Alpine Linux"
     relative: false
