@@ -2,7 +2,7 @@ services:
   hugo-dev:
     image: hugomods/hugo:exts-0.146.0
     container_name: tohdev-hugo-dev
-    command: server --bind 0.0.0.0 --baseURL http://localhost:1313 --buildDrafts --buildFuture --disableFastRender
+    command: server --bind 0.0.0.0 --baseURL http://localhost:1313 --buildDrafts --buildFuture --poll 1s
     volumes:
       - .:/src
     ports:
