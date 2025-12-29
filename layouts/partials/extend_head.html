@@ -1,0 +1,3 @@
+{{- /* Custom JavaScript für anklickbare Bilder */ -}}
+{{- $imageClick := resources.Get "js/image-click.js" | minify | fingerprint -}}
+<script defer src="{{ $imageClick.RelPermalink }}" integrity="{{ $imageClick.Data.Integrity }}"></script>
