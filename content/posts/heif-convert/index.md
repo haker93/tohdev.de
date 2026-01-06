@@ -2,8 +2,8 @@
 title: "HEIF Bilder massenweise in JPG konvertieren"
 date: 2026-01-06T17:49:00Z
 draft: false
-tags: []
-categories: []
+tags: ["docker", "linux", "heif", "heic", "bildbearbeitung", "konvertierung", "ubuntu", "bash"]
+categories: ["tutorial"]
 author: "Tobias"
 description: "Anleitung zur Konvertierung aller HEIC und HEIF Bilder in JPG"
 ---
