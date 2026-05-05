@@ -1,0 +1,26 @@
+{{ $content := .Inner | chomp }}
+<figure class="prompt-block">
+<pre><code>{{ $content }}</code></pre>
+</figure>
+
+<style>
+.prompt-block {
+    margin: 1rem 0;
+    border-radius: 0.5rem;
+    background-color: var(--code-block-bg);
+    border-left: 4px solid var(--purple-500, #8b5cf6);
+    position: relative;
+}
+.prompt-block code {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow: visible;
+    padding: 1rem 1.25rem !important;
+}
+
+/* Dark mode */
+[data-theme="dark"] .prompt-block,
+.dark .prompt-block {
+    border-left-color: var(--purple-400, #a78bfa);
+}
+</style>

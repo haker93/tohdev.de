@@ -495,35 +495,23 @@ Hier sind ein paar Prompts, mit denen ich das Modell teste. Man sieht deutliche 
 
 ### 7.1 OAuth2 Client Beispiel
 
-```plain
-Kannst du mir ein oauth2 Beispiel bauen in c#, ohne externe libs. Also einfach nur ein program.cs das eine api per client credential grant aufruft.
-```
+{{< prompt >}}Kannst du mir ein oauth2 Beispiel bauen in c#, ohne externe libs. Also einfach nur ein program.cs das eine api per client credential grant aufruft.{{< /prompt >}}
 
-```plain
-Haufenweise key value pairs... Bitte nutze .net 10 und die coolen shortcuts. Dann kannst du diese ganzen new KeyValuePair<string,string> weglassen.
+{{< prompt >}}Haufenweise key value pairs... Bitte nutze .net 10 und die coolen shortcuts. Dann kannst du diese ganzen new KeyValuePair&lt;string,string&gt; weglassen.
 
-Bitte nutze die neusten c# language features
-```
+Bitte nutze die neusten c# language features{{< /prompt >}}
 
 ### 7.2 OpenIddict Knowledge
 
-```plain
-Kennst du OpenIddict?
-```
+{{< prompt >}}Kennst du OpenIddict?{{< /prompt >}}
 
-```plain
-Ich habe in meinem Projekt OpenIddict genutzt. Und zwar im degraded mode. Ich möchte nun, dass du den authorization code beim pkce grant kürzer machst. Speicher einfach den code in einem memory cache und ersetz den einfach mit einem reference code. Kannst du mir zeigen, wie man das konkret implementieren würde?
-```
+{{< prompt >}}Ich habe in meinem Projekt OpenIddict genutzt. Und zwar im degraded mode. Ich möchte nun, dass du den authorization code beim pkce grant kürzer machst. Speicher einfach den code in einem memory cache und ersetz den einfach mit einem reference code. Kannst du mir zeigen, wie man das konkret implementieren würde?{{< /prompt >}}
 
-```plain
-Du brauchst Handler für ProcessSignInContext und ExtractTokenRequestContext.
-```
+{{< prompt >}}Du brauchst Handler für ProcessSignInContext und ExtractTokenRequestContext.{{< /prompt >}}
 
 ### 7.3 WSL Networking
 
-```plain
-Ich hab wsl und hoste einen http server da drin. Ich kann nun aber nicht von anderen Rechnern im LAN darauf zugreifen. Meine ip ist 192.168.178.115 und mein server unter port 8001 gehostet. Wenn ich per localhost von Windows aus draufgehe geht es. Aber selbst wenn ich http://192.168.178.115:8001 in Windows eingebe gehts schon nicht. Es geht auch nicht wenn ich das von anderen Rechnern im LAN aus aufrufe. Ne idee was man machn kann?
-```
+{{< prompt >}}Ich hab wsl und hoste einen http server da drin. Ich kann nun aber nicht von anderen Rechnern im LAN darauf zugreifen. Meine ip ist 192.168.178.115 und mein server unter port 8001 gehostet. Wenn ich per localhost von Windows aus draufgehe geht es. Aber selbst wenn ich http://192.168.178.115:8001 in Windows eingebe gehts schon nicht. Es geht auch nicht wenn ich das von anderen Rechnern im LAN aus aufrufe. Ne idee was man machn kann?{{< /prompt >}}
 
 Eine gute Antwort erwähnt:
 - Windows Firewall konfigurieren
