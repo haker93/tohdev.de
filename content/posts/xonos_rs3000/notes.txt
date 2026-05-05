@@ -1,0 +1,101 @@
+sudo apt update
+sudo apt install --no-install-recommends nut snmp snmptrapd snmp-mibs-downloader
+
+sudo vi /etc/nut/ups.conf
+sudo tee /etc/nut/ups.conf << EOF
+[myups]
+  driver = snmp-ups
+  port = 192.168.178.243
+  community = 4LHXTG7Px
+  version = 2c
+  desc = "Netzwerk-UPS (SNMP)"
+EOF
+
+sudo tee /etc/nut/upsd.users << EOF
+[monuser]
+    password = M9LRSQtw
+    upsmon primary
+EOF
+
+sudo tee /etc/nut/upsmon.conf << EOF
+MONITOR myups@localhost 1 monuser M9LRSQtw primary
+POLLFREQ 5
+POLLFREQALERT 5
+NOTIFYCMD /usr/local/bin/ups-notify.sh
+NOTIFYFLAG ONBATT EXEC
+NOTIFYFLAG ONLINE EXEC
+NOTIFYFLAG NOCOMM EXEC
+NOTIFYFLAG COMMOK EXEC
+EOF
+
+sudo tee /usr/local/bin/ups-notify.sh << 'EOF'
+#!/bin/bash
+UPS="$1"
+EVENT="$2"
+logger "[ups-notify.sh] NUT notify: $UPS $EVENT"
+case "$EVENT" in
+  ONBATT|onbatt)
+    logger "UPS on battery — scheduling shutdown in 10 minutes"
+    /sbin/shutdown -h +10 "Shutdown: UPS on battery"
+    ;;
+  ONLINE|online)
+    logger "Power restored — cancelling scheduled shutdown"
+    /sbin/shutdown -c "Shutdown cancelled, UPS is back online"
+    ;;
+esac
+EOF
+
+sudo chmod +x /usr/local/bin/ups-notify.sh
+
+sudo tee /etc/snmp/snmptrapd.conf << 'EOF'
+authCommunity log,execute,net 4LHXTG7Px
+traphandle default /usr/local/bin/ups-trap-handler.sh
+EOF
+
+sudo tee /usr/local/bin/ups-trap-handler.sh << 'EOF'
+#!/bin/bash
+# UPS trap handler for NUT+SNMP traps
+REMOTE="$SNMPTRAPDRUN"  # snmptrapd may export env vars; keep for logs
+logger "SNMP-TRAP received (handler start)."
+
+# Read full trap payload from stdin
+TRAP_PAYLOAD=$(cat)
+logger "SNMP-TRAP payload: $TRAP_PAYLOAD"
+
+# Basic detection (erweiterbar mit spezifischen OIDs)
+if echo "$TRAP_PAYLOAD" | grep -Ei "on ?batt|onbattery|battery" >/dev/null; then
+  logger "Detected UPS ONBATTERY — verifying with upsc"
+  # verify via NUT
+  if upsc myups@localhost 2>/dev/null | grep -Ei "status|ups.status" | grep -Ei "OB|onbatt" >/dev/null; then
+    logger "UPS verified on battery — scheduling shutdown in 10 minutes"
+    /sbin/shutdown -h +10 "Shutdown: UPS on battery"
+  else
+    logger "Verification: UPS not on battery — ignoring trap"
+  fi
+elif echo "$TRAP_PAYLOAD" | grep -Ei "online|power restored|return to line" >/dev/null; then
+  logger "Detected UPS ONLINE — cancelling scheduled shutdown"
+  /sbin/shutdown -c || logger "No scheduled shutdown to cancel"
+fi
+EOF
+sudo chmod +x /usr/local/bin/ups-trap-handler.sh
+
+# Wenn ufw genutzt wird, dann einmal udp/162 freischalten
+#sudo ufw allow from 192.168.178.243 to 192.168.178.205 port 162 proto udp
+
+sudo systemctl enable --now snmptrapd nut-server nut-monitor
+
+# In den logs kann man statusänderungen sehen:
+sudo journalctl -u snmptrapd -f
+
+# Testen
+# ONBATT Event simulieren 
+sudo /usr/local/bin/ups-notify.sh myups ONBATT
+# prüfe mit `sudo shutdown -k` oder `shutdown -c` später zum Abbrechen
+# SNMP Abfrage
+snmpget -v2c -c 4LHXTG7Px 192.168.178.243 SNMPv2-MIB::sysDescr.0
+
+# Frage Parameter von USP ab (UPS MIB)
+snmpwalk -v2c -c 4LHXTG7Px 192.168.178.243 1.3.6.1.2.1.33
+
+# Frage System Group Parameter ab
+snmpwalk -v2c -c 4LHXTG7Px 192.168.178.243 1.3.6.1.2.1.1  
