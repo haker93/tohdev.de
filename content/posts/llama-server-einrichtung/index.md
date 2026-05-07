@@ -169,7 +169,7 @@ Wenn Layer in den RAM ausgelagert werden (weil das Modell nicht komplett in den 
 
 ### 2.2 Multi Token Prediction (MTP) / Speculative Decoding
 
-[Multi Token Prediction (MTP)](https://huggingface.co/havenoammo/Qwen3.6-27B-MTP-UD-GGUF) lädt einen zusätzlichen Transformer-Layer in den VRAM, der es ermöglicht, mehrere Tokens parallel auszulesen. Das kann bis zu **2x mehr Geschwindigkeit** bei der Tokengenerierung erzeugen. Der zusätzliche Layer muss allerdings ins VRAM passen, was die Kontextgröße deutlich reduziert:
+[Multi Token Prediction (MTP)](https://github.com/ggml-org/llama.cpp/pull/22673) lädt einen zusätzlichen Transformer-Layer in den VRAM, der es ermöglicht, mehrere Tokens parallel auszulesen. Das kann bis zu **2x mehr Geschwindigkeit** bei der Tokengenerierung erzeugen. Der zusätzliche Layer muss allerdings ins VRAM passen, was die Kontextgröße deutlich reduziert:
 
 | Modell           | KV Quant | Kontextgröße | t/s   |
 |------------------|----------|--------------|-------|
@@ -182,7 +182,7 @@ Wenn Layer in den RAM ausgelagert werden (weil das Modell nicht komplett in den 
 Unsloth Studio unterstützt MTP aktuell nicht. Du musst llama.cpp selbst bauen und die MTP-Modelle direkt von Huggingface laden.
 {{< /notice >}}
 
-Mit der Huggingface CLI kannst du die MTP-Modelle herunterladen:
+Mit der Huggingface CLI kannst du die MTP-Modelle von [havenoammo/Qwen3.6-27B-MTP-UD-GGUF](https://huggingface.co/havenoammo/Qwen3.6-27B-MTP-UD-GGUF) herunterladen:
 
 ```bash
 uvx hf download havenoammo/Qwen3.6-27B-MTP-UD-GGUF --include Qwen3.6-27B-MTP-UD-Q5_K_XL.gguf --include Qwen3.6-27B-MTP-UD-Q4_K_XL.gguf

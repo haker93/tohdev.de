@@ -250,11 +250,11 @@ llama-server  kennt auch das Argument `-hf`, mit dem direkt Modelle von Huggingf
 
 ### 4.8. Multi Token Prediction (MTP) / speculative Decoding
 
-Bei [Multi Token Prediction (MTP) / speculative Decoding](https://huggingface.co/havenoammo/Qwen3.6-27B-MTP-UD-GGUF) wird ein zusätzlicher Transformer Layer in den VRAM geladen, der es ermöglicht mehrere Tokens parallel auszulesen. Das kann bis zu 2x mehr Geschwindigkeit bei der Tokengenerierung erzeugen. Der zusätzliche Layer muss allerdings ins VRAM passen, was das ganze mitunter sehr kostspielig für die Kontextgröße macht.
+Bei [Multi Token Prediction (MTP) / speculative Decoding](https://github.com/ggml-org/llama.cpp/pull/22673) wird ein zusätzlicher Transformer Layer in den VRAM geladen, der es ermöglicht mehrere Tokens parallel auszulesen. Das kann bis zu 2x mehr Geschwindigkeit bei der Tokengenerierung erzeugen. Der zusätzliche Layer muss allerdings ins VRAM passen, was das ganze mitunter sehr kostspielig für die Kontextgröße macht.
 
 Um MTP nutzen zu können braucht es andere Modelle. Unsloth Studio kann MTP noch nicht nutzen, daher bauen wir llama.cpp vom Quellcode und laden entsprechende Modelle von Huggingface.
 
-Mit folgenden Befehlen kannst du bspw. die MTP Modelle runterladen:
+Mit folgenden Befehlen kannst du die MTP Modelle von [havenoammo/Qwen3.6-27B-MTP-UD-GGUF](https://huggingface.co/havenoammo/Qwen3.6-27B-MTP-UD-GGUF) runterladen:
 
 ```bash
 uvx hf download havenoammo/Qwen3.6-27B-MTP-UD-GGUF --include Qwen3.6-27B-MTP-UD-Q5_K_XL.gguf --include Qwen3.6-27B-MTP-UD-Q4_K_XL.gguf
