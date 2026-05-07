@@ -184,7 +184,7 @@ sudo chattr +i ~/.cache/huggingface
 
 sudo mount --bind /mnt/d/WSL/huggingface ~/.cache/huggingface
 
-# Damit das beim restart der wsl distro auch wieder eingehangen wird auch in die fstab eintragen.
+# Damit das beim Neustart der WSL-Distribution auch wieder eingehängt wird, in die fstab eintragen.
 sudo tee -a /etc/fstab << EOF
 /mnt/d/WSL/huggingface  /home/tobias/.cache/huggingface  none  bind,nofail,x-systemd.automount,x-systemd.requires=/mnt/d  0 2
 EOF
@@ -235,12 +235,12 @@ Ich nutze folgende Inferenzparameter, die das Model besser für Codingartige Auf
 
 | Parameter    | Wert            | Hinweis                                |
 | ------------ | --------------- | -------------------------------------- |
-| `Temp`     | `0.2`           | Weniger Fantasie beim Coden. 0.6 wird von Unsloth empfholen, ist aber noch viel zu hoch.            |
+| `Temp`     | `0.2`           | Weniger Fantasie beim Coden. 0.6 wird von Unsloth empfohlen, ist aber noch viel zu hoch.            |
 | `Top-p`    | `0.95`          | Von Unsloth empfohlen                  |
 | `Top-k`    | `20`            | Von Unsloth empfohlen                  |
 | `Min-p`    | `0.00`          | Von Unsloth empfohlen                  |
 | `Presence Penalty`    | `0.0`          | Von Unsloth empfohlen                 |
-| `Frequency Penalty`    | `0.1`          | Unsloth emphielt 1.0, ich hatte aber keine Probleme mit Looping, also habe ich es auf 0.1 gesenkt.                |
+| `Frequency Penalty`    | `0.1`          | Unsloth empfiehlt 1.0, ich hatte aber keine Probleme mit Looping, also habe ich es auf 0.1 gesenkt.                |
 
 ### 4.7 Huggingface CLI
 
@@ -315,7 +315,7 @@ git checkout pr-22673
 popd
 
 
-# Mit CUDA-Support bauen (DGGML_CUDA=ON für GPU-Beschleunigung)
+# Mit CUDA-Support bauen (GGML_CUDA=ON für GPU-Beschleunigung)
 cmake llama.cpp -B llama.cpp/build \
     -DBUILD_SHARED_LIBS=OFF -DGGML_CUDA=ON
 cmake --build llama.cpp/build --config Release -j --clean-first \
@@ -421,7 +421,7 @@ In einem WSL2-Terminal starten (Terminal-Tab offen lassen, solange der Server la
 > Tipp: Du kannst auch Vision Features aktivieren um Bilder verarbeiten zu können. Das kostet aber wieder etwas VRAM und daher Kontextgröße. Nutze einfach `--mmproj $(find ~ -path "*Qwen3.6-27B-GGUF*" -name "mmproj-BF16.gguf" | head -1)`
 
 ```bash
-# UD-Q4_K_XK kv=q8_0
+# UD-Q4_K_XL kv=q8_0
 ~/llama.cpp/llama-server \
     --model $(find ~ -name "Qwen3.6-27B-UD-Q4_K_XL.gguf" | head -1) \
     --alias "unsloth/Qwen3.6-27B" \
@@ -442,7 +442,7 @@ In einem WSL2-Terminal starten (Terminal-Tab offen lassen, solange der Server la
     --seed 3407 \
     --ctx-size 190000
 
-# UD-Q5_K_XK kv=q8_0
+# UD-Q5_K_XL kv=q8_0
 ~/llama.cpp/llama-server \
     --model $(find ~ -name "Qwen3.6-27B-UD-Q5_K_XL.gguf" | head -1) \
     --alias "unsloth/Qwen3.6-27B" \
@@ -463,9 +463,9 @@ In einem WSL2-Terminal starten (Terminal-Tab offen lassen, solange der Server la
     --seed 3407 \
     --ctx-size 115000
 
-# Wenn du ein MTP Modell hast und llama.cpp mit MTP gebaut hast, kannst du 
-#  --spec-type mtp  --spec-draft-n-max 3 nutzen für schnellere Tokengeneration. 
-# Der zusätzliche Transformer Layer Kostet aber viel VRAM und damit Kontextgröße. 
+# Wenn du ein MTP Modell hast und llama.cpp mit MTP gebaut hast,
+# kannst du --spec-type mtp --spec-draft-n-max 3 nutzen für schnellere Tokengenerierung.
+# Der zusätzliche Transformer Layer kostet aber viel VRAM und damit Kontextgröße.
 ~/llama.cpp/llama-server \
     --model $(find ~ -name "Qwen3.6-27B-MTP-UD-Q4_K_XL.gguf" | head -1) \
     --alias "unsloth/Qwen3.6-27B" \
@@ -548,8 +548,8 @@ Der Stromverbrauch beträgt etwa 350 W.
 
 Interessanterweise ergibt sich aus den Daten ein Gewisser Kostenfaktor für die Features. Das wären:
 
-* Aktiverung von MTP kostet ca. 50% Kontextgröße, sorgt aber für einen Geschwindigkeitsboost um den Faktor 2x. Weniger startk quantisierte Modelle leiden stärker, da hier in absoluten Zahlen der Kontextverlust durch den zusätzlichen Transformerlayer stärker ins Gewicht fällt.
-* Die Aktivierung von der q8_0 Quanisierung für den KV Cache bringt ca. 55% mehr Kontextgröße. Ein Unterschied zu f16 ist selbst bei Coding Aufgaben nicht zu bemerken. Es kommt allerdings auch zu einem kleinen Geschwindigkeitsverlust von ca. 2%. 
+* Aktivierung von MTP kostet ca. 50% Kontextgröße, sorgt aber für einen Geschwindigkeitsboost um den Faktor 2x. Weniger stark quantisierte Modelle leiden stärker, da hier in absoluten Zahlen der Kontextverlust durch den zusätzlichen Transformerlayer stärker ins Gewicht fällt.
+* Die Aktivierung der q8_0 Quantisierung für den KV Cache bringt ca. 55% mehr Kontextgröße. Ein Unterschied zu f16 ist selbst bei Coding Aufgaben nicht zu bemerken. Es kommt allerdings auch zu einem kleinen Geschwindigkeitsverlust von ca. 2%. 
 * Wenn du eine bessere Quantisierung für das Model auswählst, dann kostet es ca 30% Kontextgröße. Wenn MTP Aktiviert ist sogar 60%. 
 
 Hier sind noch genauere Berechnungen:
@@ -563,7 +563,7 @@ Hier sind noch genauere Berechnungen:
 | UD-Q4_K_XL | f16        | 52000        | 93    | 52%         | 2.1         |
 | UD-Q5_K_XL | f16        | 20000        | 89    | 33%         | 2.2         |
 
-#### 7.3.2 Gewinne durch q8_0 QUantisierung des KV Cache
+#### 7.3.2 Gewinne durch q8_0 Quantisierung des KV Cache
 
 | Modell (KV=q8_0)   | Gain in Ctx | Loss in t/s |
 |------------|------------|--------------|
@@ -585,7 +585,7 @@ Hier sind noch genauere Berechnungen:
 | Choosing Q3 over Q2 | f16       | -27%        |
 | Choosing Q4 over Q3 | f16       | -46%        |
 | Choosing Q5 over Q4 | f16       | -64%        |
-| Choosing Q5 over Q4 (MTP) | f16 | -160        |
+| Choosing Q5 over Q4 (MTP) | f16 | -160%       |
 
 Oder andersherum betrachtet, kannst du deinen Kontext ziemlich vergrößern durch mehr Quantisierung.
 
