@@ -148,24 +148,58 @@ Dann im Browser `http://localhost:8888` öffnen. Über die Oberfläche das gewü
 
 ### 2.1 Modell- und Quantwahl
 
-Qwen3.6-27B ist im GGUF-Format in verschiedenen Quantisierungsstufen verfügbar. Welche Quants bei 24 GB VRAM passen (inklusive KV-Cache in q8_0):
+Qwen3.6-27B ist im GGUF-Format in verschiedenen Quantisierungsstufen verfügbar. Da die RTX 4090 meine primäre GPU ist, die Windows zum Rendern des Desktops nutzt, büße ich natürlich ein wenig Kontextgröße ein. Hier sind die realen Benchmarks, bei denen alle Layer vollständig ins VRAM passten:
 
-| Quant        | KV Cache | Kontextgröße (max) | Kontextgröße (empfohlen) |
-|--------------|----------|--------------------|--------------------------|
-| UD-Q2_K_XL   | q8_0     | 262144             | 262144                   |
-| UD-Q3_K_XL   | q8_0     | 190720             | 150528                   |
-| UD-Q4_K_XL   | q8_0     | 119552             | 98304                    |
-| UD-Q5_K_XL   | q8_0     | 55040              | 45056                    |
-| UD-Q2_K_XL   | f16      | 152064             | 123904                   |
-| UD-Q3_K_XL   | f16      | 112128             | 91136                    |
-| UD-Q4_K_XL   | f16      | 64768              | 52224                    |
-| UD-Q5_K_XL   | f16      | 28416              | 22528                    |
+| Modell         | KV Quant | Kontextgröße | t/s   |
+|----------------|----------|--------------|-------|
+| UD-Q2_K_XL     | q8_0     | 262144       | 59    |
+| UD-Q3_K_XL     | q8_0     | 262144       | 51    |
+| UD-Q4_K_XL     | q8_0     | 190000       | 44    |
+| UD-Q5_K_XL     | q8_0     | 115000       | 40    |
+| UD-Q2_K_XL     | f16      | 185000       | 60    |
+| UD-Q3_K_XL     | f16      | 146000       | 52    |
+| UD-Q4_K_XL     | f16      | 100000       | 45    |
+| UD-Q5_K_XL     | f16      | 61000        | 41    |
 
-Ich nutze **UD-Q4_K_XL** mit 98304 Token Kontext – das ist ein guter Kompromiss. Das Modell läuft dann komplett im VRAM und erreicht ca. **45 Token/s** bei der Generierung und **1500 Token/s** beim Verarbeiten des Kontexts. Der Stromverbrauch beträgt dabei ca. 350 W.
+Ich nutze **UD-Q4_K_XL** mit q8_0 KV-Cache und 190000 Token Kontext – das ist ein guter Kompromiss. Der Stromverbrauch beträgt dabei etwa 350 W.
 
 {{< notice tip >}}
 Wenn Layer in den RAM ausgelagert werden (weil das Modell nicht komplett in den VRAM passt), sinkt die Geschwindigkeit auf ca. 15 Token/s. Es lohnt sich also, einen Quant zu wählen, der vollständig in den VRAM passt.
 {{< /notice >}}
+
+### 2.2 Multi Token Prediction (MTP) / Speculative Decoding
+
+[Multi Token Prediction (MTP)](https://huggingface.co/havenoammo/Qwen3.6-27B-MTP-UD-GGUF) lädt einen zusätzlichen Transformer-Layer in den VRAM, der es ermöglicht, mehrere Tokens parallel auszulesen. Das kann bis zu **2x mehr Geschwindigkeit** bei der Tokengenerierung erzeugen. Der zusätzliche Layer muss allerdings ins VRAM passen, was die Kontextgröße deutlich reduziert:
+
+| Modell           | KV Quant | Kontextgröße | t/s   |
+|------------------|----------|--------------|-------|
+| MTP-UD-Q4_K_XL   | q8_0     | 96000        | 90    |
+| MTP-UD-Q5_K_XL   | q8_0     | 37000        | 86    |
+| MTP-UD-Q4_K_XL   | f16      | 52000        | 93    |
+| MTP-UD-Q5_K_XL   | f16      | 20000        | 89    |
+
+{{< notice warning >}}
+Unsloth Studio unterstützt MTP aktuell nicht. Du musst llama.cpp selbst bauen und die MTP-Modelle direkt von Huggingface laden.
+{{< /notice >}}
+
+Mit der Huggingface CLI kannst du die MTP-Modelle herunterladen:
+
+```bash
+uvx hf download havenoammo/Qwen3.6-27B-MTP-UD-GGUF --include Qwen3.6-27B-MTP-UD-Q5_K_XL.gguf --include Qwen3.6-27B-MTP-UD-Q4_K_XL.gguf
+```
+
+### 2.3 Empfohlene Inferenzparameter
+
+Ich nutze folgende Inferenzparameter, die das Modell besser für Coding-Aufgaben vorbereiten. Insbesondere die Temperatur ist bei Unsloth viel zu hoch eingestellt, sodass es zu häufig halluziniert. Mit 0.2 oder 0.3 sieht das Ergebnis viel besser aus:
+
+| Parameter           | Wert  | Hinweis |
+|---------------------|-------|---------|
+| `Temp`              | 0.2   | Weniger Fantasie beim Coden. Unsloth empfiehlt 0.6, was aber viel zu hoch ist. |
+| `Top-p`             | 0.95  | Von Unsloth empfohlen |
+| `Top-k`             | 20    | Von Unsloth empfohlen |
+| `Min-p`             | 0.00  | Von Unsloth empfohlen |
+| `Presence Penalty`  | 0.0   | Von Unsloth empfohlen |
+| `Frequency Penalty` | 0.1   | Unsloth empfiehlt 1.0, ich hatte aber keine Probleme mit Looping, daher auf 0.1 gesenkt. |
 
 {{< notice tip >}}
 Mit `uvx hf` lässt sich auch die Huggingface CLI direkt nutzen, um weitere Modelle zu laden. Für schnelles Ausprobieren ist aber Unsloth Studio meist komfortabler.
@@ -231,12 +265,19 @@ Cuda compilation tools, release 13.1, V13.1.x
 cd ~
 git clone https://github.com/ggml-org/llama.cpp
 
+# Optional: MTP-Branch für Multi Token Prediction (benötigt für MTP-Modelle)
+pushd llama.cpp
+git fetch origin
+git fetch origin pull/22673/head:pr-22673
+git checkout pr-22673
+popd
+
 # Mit CUDA-Unterstützung bauen (-DGGML_CUDA=ON für GPU-Beschleunigung)
 cmake llama.cpp -B llama.cpp/build \
     -DBUILD_SHARED_LIBS=OFF -DGGML_CUDA=ON
 
 cmake --build llama.cpp/build --config Release -j --clean-first \
-    --target llama-cli llama-server
+    --target llama-cli llama-server llama-fit-params
 
 # Binaries ins llama.cpp-Verzeichnis kopieren
 cp llama.cpp/build/bin/llama-* llama.cpp
@@ -248,16 +289,36 @@ Der Build dauert je nach CPU ein paar Minuten. Danach verifizieren:
 ~/llama.cpp/llama-server --version
 ```
 
+### 3.3 Kontext-Parameter mit `llama-fit-params` bestimmen
+
+Mit `llama-fit-params` kannst du die optimalen Parameter für deine Hardware berechnen lassen. `--fit-target` gibt an, wie viele MB als Reserve frei bleiben sollen:
+
+```bash
+~/llama.cpp/llama-fit-params \
+    --fit-target 256 \
+    --model $(find ~ -name "Qwen3.6-27B-UD-Q4_K_XL.gguf" | head -1)
+
+# Oder mit anderen KV-Quants:
+~/llama.cpp/llama-fit-params \
+    --fit-target 256 \
+    --cache-type-k q8_0 --cache-type-v q8_0 \
+    --model $(find ~ -name "Qwen3.6-27B-UD-Q4_K_XL.gguf" | head -1)
+```
+
 ## 4. llama-server starten
 
 `llama-server` stellt eine **OpenAI-kompatible REST-API** bereit – direkt nutzbar für Continue.dev, Open Code und andere Tools. In einem WSL2-Terminal ausführen (Terminal-Tab offen lassen, solange der Server laufen soll):
 
+{{< notice tip >}}
+Du kannst auch Vision-Features aktivieren, um Bilder verarbeiten zu können. Das kostet aber etwas VRAM und damit Kontextgröße. Nutze einfach `--mmproj $(find ~ -path "*Qwen3.6-27B-GGUF*" -name "mmproj-BF16.gguf" | head -1)`.
+{{< /notice >}}
+
+**UD-Q4_K_XL mit q8_0 KV-Cache:**
+
 ```bash
 ~/llama.cpp/llama-server \
     --model $(find ~ -name "Qwen3.6-27B-UD-Q4_K_XL.gguf" | head -1) \
-    --mmproj $(find ~ -path "*Qwen3.6-27B-GGUF*" -name "mmproj-BF16.gguf" | head -1) \
     --alias "unsloth/Qwen3.6-27B" \
-    --ctx-size 98304 \
     --chat-template-kwargs "{\"enable_thinking\": true, \"preserve_thinking\":true}" \
     --reasoning on \
     --cache-type-k q8_0 --cache-type-v q8_0 \
@@ -271,8 +332,63 @@ Der Build dauert je nach CPU ein paar Minuten. Danach verifizieren:
     --batch-size 512 --ubatch-size 256 \
     --temp 0.2 --top-p 0.95 --min-p 0.00 --top-k 20 \
     --presence-penalty 0.0 --frequency-penalty 0.1 \
-    --seed 3407
+    --fit off \
+    --seed 3407 \
+    --ctx-size 190000
 ```
+
+**UD-Q5_K_XL mit q8_0 KV-Cache:**
+
+```bash
+~/llama.cpp/llama-server \
+    --model $(find ~ -name "Qwen3.6-27B-UD-Q5_K_XL.gguf" | head -1) \
+    --alias "unsloth/Qwen3.6-27B" \
+    --chat-template-kwargs "{\"enable_thinking\": true, \"preserve_thinking\":true}" \
+    --reasoning on \
+    --cache-type-k q8_0 --cache-type-v q8_0 \
+    --flash-attn on \
+    --gpu-layers -1 \
+    --parallel 1 \
+    --jinja \
+    --port 8001 \
+    --host 0.0.0.0 \
+    --threads 16 \
+    --batch-size 512 --ubatch-size 256 \
+    --temp 0.2 --top-p 0.95 --min-p 0.00 --top-k 20 \
+    --presence-penalty 0.0 --frequency-penalty 0.1 \
+    --fit off \
+    --seed 3407 \
+    --ctx-size 115000
+```
+
+**MTP-UD-Q4_K_XL (mit Multi Token Prediction für ~2x Geschwindigkeit):**
+
+```bash
+~/llama.cpp/llama-server \
+    --model $(find ~ -name "Qwen3.6-27B-MTP-UD-Q4_K_XL.gguf" | head -1) \
+    --alias "unsloth/Qwen3.6-27B" \
+    --chat-template-kwargs "{\"enable_thinking\": true, \"preserve_thinking\":true}" \
+    --reasoning on \
+    --cache-type-k q8_0 --cache-type-v q8_0 \
+    --flash-attn on \
+    --gpu-layers -1 \
+    --parallel 1 \
+    --jinja \
+    --port 8001 \
+    --host 0.0.0.0 \
+    --threads 16 \
+    --batch-size 512 --ubatch-size 256 \
+    --temp 0.2 --top-p 0.95 --min-p 0.00 --top-k 20 \
+    --presence-penalty 0.0 --frequency-penalty 0.1 \
+    --seed 3407 \
+    --fit off \
+    --spec-type mtp --spec-draft-n-max 3 \
+    --ctx-size 96000
+```
+
+{{< notice tip >}}
+Der zusätzliche Transformer-Layer für MTP kostet viel VRAM und damit Kontextgröße. Die Geschwindigkeit verdoppelt sich jedoch (~90 t/s statt ~45 t/s).
+{{< /notice >}}
 
 ### 4.1 Parameter erklärt
 
@@ -348,6 +464,49 @@ Anschließend noch eine eingehende Windows-Firewall-Regel anlegen. Das geht am e
 
 - Protocol: TCP
 - Ports: 8001, 8888
+
+## 5.1 Performance-Analyse: Was bringt MTP und q8_0?
+
+Interessanterweise ergibt sich aus den Benchmarks ein gewisser Kostenfaktor für die Features:
+
+**Aktivierung von MTP** kostet ca. 50% Kontextgröße, sorgt aber für einen Geschwindigkeitsboost um den Faktor 2x. Weniger stark quantisierte Modelle leiden stärker, da hier in absoluten Zahlen der Kontextverlust durch den zusätzlichen Transformer-Layer stärker ins Gewicht fällt.
+
+**Die Aktivierung der q8_0 Quantisierung** für den KV-Cache bringt ca. 55% mehr Kontextgröße. Ein Unterschied zu f16 ist selbst bei Coding-Aufgaben nicht zu bemerken. Es kommt allerdings zu einem kleinen Geschwindigkeitsverlust von ca. 2%.
+
+**Wenn du eine bessere Quantisierung** für das Modell auswählst, kostet es ca. 30% Kontextgröße. Wenn MTP aktiviert ist, sogar 60%.
+
+### Gewinne durch MTP
+
+| Modell (MTP) | KV Quant | Kontextgröße | t/s   | Verbleibender Kontext | Gain in t/s |
+|--------------|----------|--------------|-------|----------------------|-------------|
+| UD-Q4_K_XL   | q8_0     | 96000        | 90    | 51%                  | 2.0         |
+| UD-Q5_K_XL   | q8_0     | 37000        | 86    | 32%                  | 2.2         |
+| UD-Q4_K_XL   | f16      | 52000        | 93    | 52%                  | 2.1         |
+| UD-Q5_K_XL   | f16      | 20000        | 89    | 33%                  | 2.2         |
+
+### Gewinne durch q8_0 Quantisierung des KV-Cache
+
+| Modell (KV=q8_0) | Gain in Kontext | Loss in t/s |
+|------------------|-----------------|-------------|
+| UD-Q2_K_XL       | +42%            | -2%         |
+| UD-Q3_K_XL       | +80%            | -2%         |
+| UD-Q4_K_XL       | +90%            | -2%         |
+| UD-Q5_K_XL       | +89%            | -2%         |
+| MTP-UD-Q4_K_XL   | +85%            | -3%         |
+| MTP-UD-Q5_K_XL   | +85%            | -3%         |
+
+### Kontextgewinne durch stärkere Quantisierung
+
+| Modell              | KV Quant | Gain in Kontext |
+|---------------------|----------|-----------------|
+| Choosing Q2 over Q3 | q8_0     | +0%             |
+| Choosing Q3 over Q4 | q8_0     | +38%            |
+| Choosing Q4 over Q5 | q8_0     | +65%            |
+| Choosing Q4 over Q5 (MTP) | q8_0 | +159%         |
+| Choosing Q2 over Q3 | f16      | +27%            |
+| Choosing Q3 over Q4 | f16      | +46%            |
+| Choosing Q4 over Q5 | f16      | +64%            |
+| Choosing Q4 over Q5 (MTP) | f16  | +160%         |
 
 ## 6. Chat-Clients einrichten
 
