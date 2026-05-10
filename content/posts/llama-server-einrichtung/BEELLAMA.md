@@ -68,5 +68,5 @@ uvx hf download spiritbuun/Qwen3.6-27B-DFlash-GGUF --include dflash-draft-3.6-q4
   --log-timestamps --log-prefix --log-colors off \
   --reasoning on \
   --chat-template-kwargs '{"preserve_thinking":true}' \
-  --temp 0.2 --top-k 20 --min-p 0.0
+  --temp 0.0 --top-k 20 --min-p 0.0
 ```
